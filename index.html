@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Title A/B Tester</title>
+<style>
+:root {
+  --bg: #f7f3ec;
+  --paper: #fbf8f1;
+  --ink: #1a1410;
+  --ink-soft: #5a4e44;
+  --rule: #d4c8b8;
+  --burgundy: #6e1f2c;
+  --burgundy-deep: #4a131c;
+  --burgundy-soft: #efd4d8;
+  --gold: #8a6a1c;
+  --code-bg: #ede6d6;
+  --ok: #2a5c1a;
+  --warn: #8a4a00;
+  --err: #6e1f2c;
+}
+[data-theme="dark"] {
+  --bg: #1a1410;
+  --paper: #251c16;
+  --ink: #ede4d4;
+  --ink-soft: #b8a890;
+  --rule: #4a3a30;
+  --burgundy: #c75064;
+  --burgundy-deep: #d97080;
+  --burgundy-soft: #3d1c22;
+  --gold: #d4a155;
+  --code-bg: #110b08;
+  --ok: #6dd380;
+  --warn: #d4a155;
+  --err: #c75064;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  line-height: 1.55;
+}
+.wrap { max-width: 1200px; margin: 0 auto; }
+header {
+  border-top: 4px double var(--burgundy);
+  border-bottom: 1px solid var(--burgundy);
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--burgundy);
+  font-variant: small-caps;
+}
+[data-theme="dark"] h1 { color: var(--burgundy); }
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  font-family: ui-sans-serif, sans-serif;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.theme-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+.lede {
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+  max-width: 65ch;
+  color: var(--ink);
+}
+.lede-drop {
+  font-size: 2.4rem;
+  font-weight: 700;
+  float: left;
+  line-height: 1;
+  margin: 0.15rem 0.4rem 0 0;
+  color: var(--burgundy);
+}
+[data-theme="dark"] .lede-drop { color: var(--burgundy); }
+.input-section {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 1.5rem;
+  margin-bottom: 1.75rem;
+  border-radius: 3px;
+}
+.input-section h2 {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--burgundy);
+  margin-bottom: 1rem;
+}
+.variants {
+  display: grid;
+  gap: 0.85rem;
+}
+.variant-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+.variant-label {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--burgundy);
+  min-width: 1.5rem;
+}
+[data-theme="dark"] .variant-label { color: var(--burgundy); }
+input[type="text"] {
+  flex: 1;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  padding: 0.55rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  border-radius: 2px;
+}
+input[type="text"]:focus { outline: 2px solid var(--burgundy); outline-offset: 1px; }
+.remove-btn {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+  padding: 0.4rem 0.65rem;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.remove-btn:hover { color: var(--err); border-color: var(--err); }
+.btn-row {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+button {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 2px;
+}
+button.primary {
+  background: var(--burgundy);
+  border-color: var(--burgundy);
+  color: var(--paper);
+  font-weight: 600;
+}
+[data-theme="dark"] button.primary {
+  color: var(--bg) !important;
+}
+button.primary:hover { background: var(--burgundy-deep); border-color: var(--burgundy-deep); }
+button:hover { border-color: var(--burgundy); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.results { display: none; }
+.results.show { display: block; }
+.section {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 3px;
+}
+.section h2 {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--burgundy);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.compare-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+.compare-card {
+  border: 1px solid var(--rule);
+  background: var(--bg);
+  padding: 1rem;
+  border-radius: 2px;
+}
+.compare-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.compare-card-letter {
+  font-family: ui-sans-serif, sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--burgundy);
+}
+[data-theme="dark"] .compare-card-letter { color: var(--burgundy); }
+.compare-card-len {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.compare-title {
+  font-family: ui-sans-serif, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 0.85rem;
+  color: var(--ink);
+}
+.compare-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.8rem;
+}
+.compare-meta dt {
+  color: var(--ink-soft);
+}
+.compare-meta dd {
+  color: var(--ink);
+}
+.signal-bar {
+  display: inline-block;
+  height: 0.55rem;
+  background: var(--burgundy);
+  border-radius: 1px;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+.preview-card {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 0.85rem;
+  margin-top: 0.85rem;
+}
+[data-theme="dark"] .preview-card {
+  background: #0f0f0f;
+}
+.preview-card .yt-search {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+.preview-card .yt-thumb {
+  width: 200px;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-deep) 100%);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+}
+.preview-card .yt-info { flex: 1; min-width: 0; }
+.preview-card .yt-title-line {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #0f0f0f;
+  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+[data-theme="dark"] .preview-card .yt-title-line { color: #f1f1f1; }
+.preview-card .yt-meta-line {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.75rem;
+  color: #606060;
+}
+[data-theme="dark"] .preview-card .yt-meta-line { color: #aaaaaa; }
+.signals-list {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.signal-tag {
+  font-family: ui-sans-serif, sans-serif;
+  font-size: 0.7rem;
+  background: var(--burgundy-soft);
+  color: var(--burgundy-deep);
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+[data-theme="dark"] .signal-tag {
+  background: var(--burgundy-soft);
+  color: var(--burgundy-deep);
+}
+.overlap-section {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+.overlap-pill {
+  display: inline-block;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 0.15rem 0.55rem;
+  margin: 0.15rem 0.25rem 0.15rem 0;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+}
+.overlap-pill.shared {
+  background: var(--burgundy);
+  color: var(--paper);
+  border-color: var(--burgundy);
+}
+[data-theme="dark"] .overlap-pill.shared {
+  color: var(--bg) !important;
+}
+.error-msg {
+  background: var(--code-bg);
+  border-left: 4px solid var(--err);
+  padding: 0.85rem 1rem;
+  border-radius: 2px;
+  font-size: 0.9rem;
+  color: var(--err);
+  margin-top: 0.85rem;
+}
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+footer a { color: var(--burgundy); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+@media (max-width: 700px) {
+  body { padding: 1rem 0.75rem; }
+  h1 { font-size: 1.4rem; }
+  .compare-meta { grid-template-columns: 1fr; gap: 0.15rem 0; }
+  .preview-card .yt-search { flex-direction: column; }
+  .preview-card .yt-thumb { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Title A/B Tester</h1>
+    <div class="subtitle">Compare 2-5 video title variants side by side</div>
+  </div>
+  <button class="theme-btn" id="theme-toggle" type="button">Dark</button>
+</header>
+
+<p class="lede"><span class="lede-drop">P</span>aste two to five candidate titles. The tool measures length against the visible-character cutoff, surfaces signal patterns (numbers, year, question, brackets, all-caps ratio, emotion words), and shows a search-result preview for each. No predictions, no scores. Just the comparison data, side by side, so you can pick.</p>
+
+<div class="input-section">
+  <h2>Title variants</h2>
+  <div class="variants" id="variants">
+    <div class="variant-row" data-row="A">
+      <div class="variant-label">A</div>
+      <input type="text" maxlength="100" placeholder="First title variant">
+    </div>
+    <div class="variant-row" data-row="B">
+      <div class="variant-label">B</div>
+      <input type="text" maxlength="100" placeholder="Second title variant">
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="primary" id="compare-btn" type="button">Compare</button>
+    <button id="add-btn" type="button">Add variant</button>
+    <button id="sample-btn" type="button">Load sample</button>
+    <button id="clear-btn" type="button">Clear</button>
+  </div>
+  <div id="error-box"></div>
+</div>
+
+<div class="results" id="results">
+  <div class="section">
+    <h2>Side-by-side comparison</h2>
+    <div class="compare-grid" id="cards"></div>
+  </div>
+
+  <div class="section">
+    <h2>Word overlap across all variants</h2>
+    <p style="font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.85rem;">Highlighted words appear in two or more of your variants. The rest are unique to a single variant. Heavy overlap means your variants test the same hook with cosmetic changes; little overlap means they test genuinely different framings.</p>
+    <div class="overlap-section" id="overlap"></div>
+  </div>
+</div>
+
+<footer>
+  <div>YouTube Title A/B Tester. MIT licensed. <a href="https://github.com/0xelitesystem/youtube-title-ab-tester" target="_blank" rel="noopener">View source</a>.</div>
+  <div>Comparison only, no prediction. Pick using your judgment.</div>
+</footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const themeBtn = $("theme-toggle");
+function setTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  themeBtn.textContent = t === "dark" ? "Light" : "Dark";
+}
+themeBtn.addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") || "light";
+  setTheme(cur === "dark" ? "light" : "dark");
+});
+
+const LETTERS = ["A", "B", "C", "D", "E"];
+
+const EMOTION_WORDS = new Set([
+  "amazing","incredible","crazy","insane","shocking","stunning",
+  "best","worst","ultimate","perfect","worst","awful","terrible","horrible",
+  "easy","quick","fast","instant","secret","hidden","nobody","everyone",
+  "love","hate","fail","success","wrong","right","truth","lies","exposed"
+]);
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function tokenize(s) {
+  return (s.toLowerCase().match(/[a-z0-9']+/g) || []).filter(t => t.length > 2);
+}
+
+const STOPWORDS = new Set(["the","and","for","with","you","your","this","that","but","not","are","was","has","have","how","why","what","who","when","where","from","into","out","off","one","two","new","old","get","got","its","all","any","can","will","would","should","could"]);
+
+function contentTokens(s) {
+  return tokenize(s).filter(t => !STOPWORDS.has(t));
+}
+
+function detectSignals(title) {
+  const sigs = [];
+  if (/\d+/.test(title)) sigs.push("number");
+  if (/\b(19|20)\d{2}\b/.test(title)) sigs.push("year");
+  if (title.includes("?")) sigs.push("question");
+  if (/\[.+\]|\(.+\)/.test(title)) sigs.push("brackets");
+  const caps = title.match(/[A-Z]/g) || [];
+  const lower = title.match(/[a-z]/g) || [];
+  if (caps.length + lower.length > 0) {
+    const ratio = caps.length / (caps.length + lower.length);
+    if (ratio > 0.5) sigs.push("heavy-caps");
+    else if (title === title.toUpperCase() && /[A-Z]/.test(title)) sigs.push("all-caps");
+  }
+  if ((title.match(/!/g) || []).length >= 2) sigs.push("multi-exclamation");
+  const emotionHits = tokenize(title).filter(t => EMOTION_WORDS.has(t));
+  if (emotionHits.length > 0) sigs.push(`emotion-words(${emotionHits.length})`);
+  if (title.includes(":")) sigs.push("colon");
+  if (title.includes(" vs ") || title.includes(" vs. ")) sigs.push("vs");
+  if (/\b(how to|how-to)\b/i.test(title)) sigs.push("how-to");
+  if (/\b(why|because)\b/i.test(title)) sigs.push("explanation");
+  return sigs;
+}
+
+function getVariants() {
+  const rows = document.querySelectorAll("#variants .variant-row");
+  const out = [];
+  rows.forEach(row => {
+    const letter = row.dataset.row;
+    const value = row.querySelector("input").value.trim();
+    if (value) out.push({ letter, value });
+  });
+  return out;
+}
+
+function compare() {
+  $("error-box").innerHTML = "";
+  const variants = getVariants();
+  if (variants.length < 2) {
+    $("error-box").innerHTML = `<div class="error-msg">Enter at least two titles to compare.</div>`;
+    $("results").classList.remove("show");
+    return;
+  }
+
+  // Per-variant analysis
+  const analyses = variants.map(v => ({
+    ...v,
+    length: v.value.length,
+    wordCount: (v.value.match(/\S+/g) || []).length,
+    signals: detectSignals(v.value),
+    contentTokens: contentTokens(v.value),
+  }));
+
+  // Render comparison cards
+  const cardsEl = $("cards");
+  cardsEl.innerHTML = "";
+  for (const a of analyses) {
+    const card = document.createElement("div");
+    card.className = "compare-card";
+    const lenWarning = a.length > 70 ? `<span style="color: var(--warn);">truncates around 60 chars</span>` : `<span style="color: var(--ok);">fits visible area</span>`;
+    card.innerHTML = `
+      <div class="compare-card-head">
+        <div class="compare-card-letter">Variant ${a.letter}</div>
+        <div class="compare-card-len">${a.length} chars - ${lenWarning}</div>
+      </div>
+      <div class="compare-title">${escapeHtml(a.value)}</div>
+      <dl class="compare-meta">
+        <dt>length</dt><dd>${a.length} characters / ${a.wordCount} words</dd>
+        <dt>signals</dt><dd>${a.signals.length === 0 ? '<em style="color: var(--ink-soft);">none detected</em>' : ''}</dd>
+      </dl>
+      ${a.signals.length > 0 ? `<div class="signals-list">${a.signals.map(s => `<span class="signal-tag">${escapeHtml(s)}</span>`).join("")}</div>` : ""}
+      <div class="preview-card">
+        <div class="yt-search">
+          <div class="yt-thumb">PREVIEW</div>
+          <div class="yt-info">
+            <div class="yt-title-line">${escapeHtml(a.value)}</div>
+            <div class="yt-meta-line">Your channel - 12K views - 2 days ago</div>
+          </div>
+        </div>
+      </div>
+    `;
+    cardsEl.appendChild(card);
+  }
+
+  // Word overlap
+  const tokenCounts = {};
+  for (const a of analyses) {
+    const seen = new Set();
+    for (const t of a.contentTokens) {
+      if (seen.has(t)) continue;
+      seen.add(t);
+      tokenCounts[t] = (tokenCounts[t] || 0) + 1;
+    }
+  }
+  const overlapEl = $("overlap");
+  // Sort: shared first, then unique
+  const allTokens = Object.keys(tokenCounts).sort((a, b) => tokenCounts[b] - tokenCounts[a] || a.localeCompare(b));
+  if (allTokens.length === 0) {
+    overlapEl.innerHTML = `<em style="color: var(--ink-soft);">No content words to compare.</em>`;
+  } else {
+    overlapEl.innerHTML = allTokens.map(t => {
+      const shared = tokenCounts[t] >= 2;
+      return `<span class="overlap-pill ${shared ? 'shared' : ''}" title="appears in ${tokenCounts[t]} variant(s)">${escapeHtml(t)}${shared ? ` (${tokenCounts[t]})` : ''}</span>`;
+    }).join("");
+  }
+
+  $("results").classList.add("show");
+}
+
+function addVariant() {
+  const variants = document.querySelectorAll("#variants .variant-row");
+  if (variants.length >= 5) return;
+  const nextLetter = LETTERS[variants.length];
+  const row = document.createElement("div");
+  row.className = "variant-row";
+  row.dataset.row = nextLetter;
+  row.innerHTML = `
+    <div class="variant-label">${nextLetter}</div>
+    <input type="text" maxlength="100" placeholder="Variant ${nextLetter}">
+    <button class="remove-btn" type="button">Remove</button>
+  `;
+  row.querySelector(".remove-btn").addEventListener("click", () => {
+    row.remove();
+    if (document.querySelectorAll("#variants .variant-row").length < 5) $("add-btn").disabled = false;
+  });
+  $("variants").appendChild(row);
+  if (document.querySelectorAll("#variants .variant-row").length >= 5) $("add-btn").disabled = true;
+}
+
+$("add-btn").addEventListener("click", addVariant);
+$("compare-btn").addEventListener("click", compare);
+
+$("clear-btn").addEventListener("click", () => {
+  document.querySelectorAll("#variants input").forEach(i => i.value = "");
+  $("results").classList.remove("show");
+  $("error-box").innerHTML = "";
+});
+
+$("sample-btn").addEventListener("click", () => {
+  const inputs = document.querySelectorAll("#variants input");
+  const samples = [
+    "How I redesigned my entire workflow in one weekend",
+    "I tried changing my workflow for 30 days. Here is what happened.",
+    "Why your workflow is broken (and how to fix it in 2026)",
+  ];
+  // Make sure we have 3 variants
+  while (document.querySelectorAll("#variants .variant-row").length < 3) addVariant();
+  const allInputs = document.querySelectorAll("#variants input");
+  for (let i = 0; i < Math.min(samples.length, allInputs.length); i++) {
+    allInputs[i].value = samples[i];
+  }
+});
+
+setTheme("light");
+</script>
+</body>
+</html>
