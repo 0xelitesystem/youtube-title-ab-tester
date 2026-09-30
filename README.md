@@ -2,6 +2,8 @@
 
 Compare 2 to 5 candidate video titles side by side. Length, word overlap, signal patterns, search-result preview. Browser only.
 
+An independent project. Not affiliated with, endorsed by, or sponsored by YouTube or Google LLC.
+
 **Live demo:** https://0xelitesystem.github.io/youtube-title-ab-tester/
 
 ## Use

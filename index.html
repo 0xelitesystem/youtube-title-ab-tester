@@ -32,7 +32,7 @@
   --ink: #ede4d4;
   --ink-soft: #b8a890;
   --rule: #4a3a30;
-  --burgundy: #c75064;
+  --burgundy: #ca586b;
   --burgundy-deep: #d97080;
   --burgundy-soft: #3d1c22;
   --gold: #d4a155;
@@ -293,6 +293,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 0.65rem;
   letter-spacing: 0.1em;
 }
+[data-theme="dark"] .preview-card .yt-thumb { color: #0a0a0a; }
 .preview-card .yt-info { flex: 1; min-width: 0; }
 .preview-card .yt-title-line {
   font-family: ui-sans-serif, sans-serif;
@@ -415,6 +416,9 @@ footer a:hover { text-decoration: underline; }
 }
 :root { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
+
+/* Footer links are underlined so they never rely on colour alone (WCAG 1.4.1). */
+footer a { text-decoration: underline; text-underline-offset: 0.15em; }
 </style>
 </head>
 <body>
@@ -465,7 +469,7 @@ footer a:hover { text-decoration: underline; }
 
 <footer>
   <div>YouTube Title A/B Tester. MIT licensed. <a href="https://github.com/0xelitesystem/youtube-title-ab-tester" target="_blank" rel="noopener">View source</a> &middot; <a href="https://elitesystem.ai" target="_blank" rel="noopener">An elitesystem.ai tool</a> &middot; <a href="https://0xelitesystem.github.io/" target="_blank" rel="noopener">More tools</a>.</div>
-  <div>Comparison only, no prediction. Pick using your judgment.</div>
+  <div>Comparison only, no prediction. Pick using your judgment. An independent project. Not affiliated with, endorsed by, or sponsored by YouTube or Google LLC.</div>
 </footer>
 </div>
 
