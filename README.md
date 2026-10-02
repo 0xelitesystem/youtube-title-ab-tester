@@ -19,7 +19,7 @@ For each variant, the tool shows:
 
 Across all variants, the tool also shows a word-overlap visualization. Heavy overlap means your variants test the same hook with cosmetic changes; little overlap means they test genuinely different framings. That's the comparison that actually matters.
 
-## Why
+## Why this exists
 
 Title testing is mostly intuition. Real YouTube A/B test tools require the video to be live and accumulate impressions before they tell you anything. By then it's too late to change your gut feeling about which title to start with.
 
@@ -34,7 +34,7 @@ This is a pre-publish gut-check tool. It surfaces patterns you can use as inputs
 
 ## Privacy
 
-Everything runs locally. The titles you paste never leave your browser. Verify with DevTools network tab.
+Everything runs locally. The titles you paste never leave your browser. Verify with DevTools network tab. The only thing saved to `localStorage` is your light or dark theme choice, under the key `theme`.
 
 ## Run locally
 
